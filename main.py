@@ -26,7 +26,7 @@ def gradient_descent(alpha, x, y, numIterations):
     theta = np.ones((n, 1))
 
     for iter in range(0, numIterations):
-        J, grad = cost(theta, x, y, 400)  # cost
+        J, grad = cost(theta, x, y, 40)  # cost
 
         print "iter %s | J: %.3f" % (iter, J)      
 
@@ -35,40 +35,41 @@ def gradient_descent(alpha, x, y, numIterations):
     return theta
 
 def predict(a, all_theta):
-    print all_theta
     matrix = np.dot(a, all_theta.T)
     results = sigmoid(matrix)
-    return results
+    return results.argmax(axis=0)
 
 if __name__ == '__main__':
 
     csv = genfromtxt('iris.data.txt', delimiter=',')
     x = csv[:, [0,1,2,3]]
-    y = csv[:, [-1]]
-    y = np.resize(y, (y.shape[0], 3))
-    for value in np.nditer(y, op_flags=['readwrite']):
+    tempy = csv[:, [-1]]
+    y = np.zeros((tempy.shape[0], 3))
+    for index,value in enumerate(np.nditer(tempy)):
         if value == 0:
-            y[...] = [1,0,0]
+            y[index] = [1,0,0]
         if value == 1:
-            y[...] = [0,1,0]
+            y[index] = [0,1,0]
         if value == 2:
-            y[...] = [0,0,1]
+            y[index] = [0,0,1]
 
-    print y
     all_theta = np.zeros((y.shape[1], x.shape[1]))
-    alpha = 0.01 # learning rate
+    alpha = 0.05 # learning rate
     np.insert(x, 0, np.ones(x.shape[1]), axis=0)
 
     for i in range(0, y.shape[1]):
-        all_theta[i] = gradient_descent(alpha, x, y[:,[i]], 1).T
+        all_theta[i] = gradient_descent(alpha, x, y[:,[i]], 10000).T
 
-    print predict([5.9,3.0,5.1,1.8], all_theta)
+    labels = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+
+    print 'Iris-setosa = %s' % labels[predict([5.1,3.5,1.4,0.2], all_theta)]
+    print 'Iris-versicolor = %s' % labels[predict([7.0,3.2,4.7,1.4], all_theta)]
+    print 'Iris-virginica = %s' % labels[predict([5.9,3.0,5.1,1.8], all_theta)]
 
     # plot
-    plot_x = [np.min(x[1,:])-2,  np.max(x[1,:])+2]
-    plot_y = np.dot(np.divide(-1, all_theta[0][2]), (np.dot(all_theta[0][1], plot_x) + all_theta[0][0]))
-    pylab.plot(plot_x, plot_y)
-    pylab.plot(x, y, 'o')
-    pylab.show()
-    labels ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+    #plot_x = [np.min(x[1,:])-2,  np.max(x[1,:])+2]
+    #plot_y = np.dot(np.divide(-1, all_theta[0][2]), (np.dot(all_theta[0][1], plot_x) + all_theta[0][0]))
+    #pylab.plot(plot_x, plot_y)
+    #pylab.plot(x, y, 'o')
+    #pylab.show()
     print "Done!"
